@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  KASIR
+  GUDANG
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  ADJUST
+}
+
+enum TransactionStatus {
+  SUCCESS
+  CANCELLED
+  REFUNDED
+  PENDING
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  QRIS
+  EWALLET
+  RECEIVABLE
+}
+
+model User {
+  id           String        @id @default(cuid())
+  username     String        @unique
+  name         String
+  passwordHash String
+  role         Role          @default(KASIR)
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model StoreSetting {
+  id            String   @id @default(cuid())
+  storeName     String   @default("Toko Berkah Jaya")
+  address       String   @default("")
+  phone         String   @default("")
+  receiptFooter String   @default("Terima kasih sudah berbelanja.")
+  taxRate       Decimal  @default(0) @db.Decimal(6, 2)
+  invoicePrefix String   @default("INV")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id             String            @id @default(cuid())
+  name           String
+  sku            String            @unique
+  barcode        String?           @unique
+  costPrice      Decimal           @db.Decimal(14, 2)
+  sellingPrice   Decimal           @db.Decimal(14, 2)
+  stock          Int               @default(0)
+  unit           String            @default("pcs")
+  imageUrl       String?
+  active         Boolean           @default(true)
+  categoryId     String
+  category       Category          @relation(fields: [categoryId], references: [id])
+  stockMovements StockMovement[]
+  transactionItems TransactionItem[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([name])
+  @@index([categoryId])
+}
+
+model Customer {
+  id           String        @id @default(cuid())
+  name         String
+  phone        String?
+  points       Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model Transaction {
+  id            String            @id @default(cuid())
+  invoiceNumber String            @unique
+  cashierId     String
+  cashier       User              @relation(fields: [cashierId], references: [id])
+  customerId    String?
+  customer      Customer?         @relation(fields: [customerId], references: [id])
+  subtotal      Decimal           @db.Decimal(14, 2)
+  discount      Decimal           @default(0) @db.Decimal(14, 2)
+  tax           Decimal           @default(0) @db.Decimal(14, 2)
+  total         Decimal           @db.Decimal(14, 2)
+  paidAmount    Decimal           @db.Decimal(14, 2)
+  changeAmount  Decimal           @default(0) @db.Decimal(14, 2)
+  paymentMethod PaymentMethod
+  status        TransactionStatus @default(SUCCESS)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  items         TransactionItem[]
+  payments      Payment[]
+
+  @@index([createdAt])
+  @@index([cashierId])
+  @@index([status])
+}
+
+model TransactionItem {
+  id            String      @id @default(cuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       Product?    @relation(fields: [productId], references: [id])
+  productName   String
+  quantity      Int
+  costPrice     Decimal     @db.Decimal(14, 2)
+  sellingPrice  Decimal     @db.Decimal(14, 2)
+  subtotal      Decimal     @db.Decimal(14, 2)
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  transactionId String
+  transaction   Transaction   @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  method        PaymentMethod
+  amount        Decimal       @db.Decimal(14, 2)
+  createdAt     DateTime      @default(now())
+}
+
+model StockMovement {
+  id        String            @id @default(cuid())
+  productId String
+  product   Product           @relation(fields: [productId], references: [id])
+  type      StockMovementType
+  quantity  Int
+  source    String
+  note      String?
+  createdAt DateTime          @default(now())
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
