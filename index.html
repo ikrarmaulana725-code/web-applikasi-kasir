@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Qasir Modern</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="loginScreen" class="login-screen">
+      <section class="login-panel">
+        <div>
+          <p class="eyebrow">Qasir Modern</p>
+          <h1>Masuk ke kasir</h1>
+          <p class="muted">Gunakan akun demo untuk owner, admin, kasir, atau gudang.</p>
+        </div>
+        <form id="loginForm" class="stack">
+          <label>
+            Username
+            <input id="loginUsername" autocomplete="username" value="owner" required />
+          </label>
+          <label>
+            Password
+            <input id="loginPassword" type="password" autocomplete="current-password" value="123456" required />
+          </label>
+          <button class="primary full" type="submit">Masuk</button>
+          <p class="hint">Demo: owner/admin/kasir/gudang dengan password 123456.</p>
+        </form>
+      </section>
+    </div>
+
+    <div id="appShell" class="app-shell hidden">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">Q</span>
+          <div>
+            <strong>Qasir Modern</strong>
+            <small id="storeNameSide">Toko Demo</small>
+          </div>
+        </div>
+        <nav id="navMenu" class="nav-menu"></nav>
+        <button id="logoutBtn" class="ghost full">Keluar</button>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p id="pageKicker" class="eyebrow">Dashboard</p>
+            <h2 id="pageTitle">Ringkasan toko</h2>
+          </div>
+          <div class="user-chip">
+            <span id="activeRole">Owner</span>
+            <strong id="activeUser">owner</strong>
+          </div>
+        </header>
+
+        <section id="dashboardView" class="view"></section>
+        <section id="posView" class="view hidden"></section>
+        <section id="productsView" class="view hidden"></section>
+        <section id="stockView" class="view hidden"></section>
+        <section id="transactionsView" class="view hidden"></section>
+        <section id="customersView" class="view hidden"></section>
+        <section id="reportsView" class="view hidden"></section>
+        <section id="usersView" class="view hidden"></section>
+        <section id="settingsView" class="view hidden"></section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

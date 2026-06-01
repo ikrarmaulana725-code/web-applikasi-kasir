@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: qasir-modern-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: qasir_modern
+    ports:
+      - "5432:5432"
+    volumes:
+      - qasir_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  qasir_postgres_data:
